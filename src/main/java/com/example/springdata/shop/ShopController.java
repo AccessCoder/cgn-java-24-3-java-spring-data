@@ -6,6 +6,7 @@ import com.example.springdata.shop.order.OrderStatus;
 import com.example.springdata.shop.product.Product;
 import com.example.springdata.shop.product.ProductNotAvailableException;
 import com.example.springdata.shop.product.ProductRepo;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -15,13 +16,11 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/shop")
+@RequiredArgsConstructor
 public class ShopController {
     private ProductRepo productRepo = new ProductRepo();
-    private OrderRepo orderRepo;
+    private final OrderRepo orderRepo;
 
-    public ShopController(OrderRepo orderRepo) {
-        this.orderRepo = orderRepo;
-    }
 
     @PostMapping("/orders")
     public Order addOrder(@RequestBody List<String> productIds) throws ProductNotAvailableException {
@@ -39,13 +38,13 @@ public class ShopController {
 
     @GetMapping("/orders")
     public List<Order> findAllOrders(@RequestParam OrderStatus status) {
-        return orderRepo.findAllBy(status);
+        return orderRepo.findAllByStatus(status);
     }
 
     @PutMapping("/orders/{orderId}")
     public void updateOrder(@PathVariable String orderId, @RequestParam OrderStatus newStatus) {
-        Order oldOrder = orderRepo.getOrderById(orderId);
-        orderRepo.removeOrderBy(orderId);
+        Order oldOrder = orderRepo.findById(orderId).orElseThrow();
+        orderRepo.deleteById(orderId);
         Order newOrder = oldOrder.withStatus(newStatus);
         orderRepo.save(newOrder);
     }
