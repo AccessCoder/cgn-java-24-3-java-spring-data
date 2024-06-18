@@ -1,6 +1,7 @@
 package com.example.springdata.shop;
 
 import com.example.springdata.shop.order.Order;
+import com.example.springdata.shop.order.OrderDTO;
 import com.example.springdata.shop.order.OrderRepo;
 import com.example.springdata.shop.order.OrderStatus;
 import com.example.springdata.shop.product.Product;
@@ -18,34 +19,26 @@ import java.util.UUID;
 @RequestMapping("/shop")
 @RequiredArgsConstructor
 public class ShopController {
-    private ProductRepo productRepo = new ProductRepo();
-    private final OrderRepo orderRepo;
 
+    private final ShopService service;
 
     @PostMapping("/orders")
     public Order addOrder(@RequestBody List<String> productIds) throws ProductNotAvailableException {
-        List<Product> products = new ArrayList<>();
-        for (String productId : productIds) {
-            Product productToOrder = productRepo.getProductById(productId)
-                    .orElseThrow(ProductNotAvailableException::new);
-            products.add(productToOrder);
-        }
-
-        Order newOrder = new Order(UUID.randomUUID().toString(), products, OrderStatus.PROCESSING, Instant.now());
-
-        return orderRepo.save(newOrder);
+        return service.addOrder(productIds);
     }
 
     @GetMapping("/orders")
     public List<Order> findAllOrders(@RequestParam OrderStatus status) {
-        return orderRepo.findAllByStatus(status);
+        return service.findAllOrders(status);
     }
 
     @PutMapping("/orders/{orderId}")
     public void updateOrder(@PathVariable String orderId, @RequestParam OrderStatus newStatus) {
-        Order oldOrder = orderRepo.findById(orderId).orElseThrow();
-        orderRepo.deleteById(orderId);
-        Order newOrder = oldOrder.withStatus(newStatus);
-        orderRepo.save(newOrder);
+        service.updateOrder(orderId, newStatus);
+    }
+
+    @PostMapping("/order")
+    public Order addOrder2(@RequestBody OrderDTO order) throws ProductNotAvailableException {
+        return null;
     }
 }
