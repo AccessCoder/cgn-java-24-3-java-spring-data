@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,7 +39,7 @@ public class ShopController {
     }
 
     @PostMapping("/order")
-    public Order addOrder2(@RequestBody OrderDTO order) throws ProductNotAvailableException {
-        return null;
+    public List<Order> addOrder2(@RequestBody OrderDTO order) throws ProductNotAvailableException {
+        return Collections.emptyList();
     }
 }
